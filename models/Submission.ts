@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { Submission, AIAnalysis } from "@/types";
 
-export interface ISubmission extends Document, Omit<Submission, "submissionId"> {
+export interface ISubmission extends Omit<Document, "_id">, Omit<Submission, "submissionId"> {
   _id: string;
 }
 
