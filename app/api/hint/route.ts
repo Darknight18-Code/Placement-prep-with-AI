@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       problemId: problem.id,
     };
 
-    const hint = await generateHint(code, mappedProblem, hintLevel);
+    const hint = await generateHint(code, mappedProblem as any, hintLevel);
 
     return NextResponse.json({ hint });
   } catch (error) {
