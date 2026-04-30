@@ -78,10 +78,10 @@ export interface Hint {
   type: "validation" | "mistake" | "optimization" | "nudge";
 }
 
-declare module "next-auth" {
-  interface Session {
-    accessToken?: string;
-    userId?: string;
-  }
-}
+// declare module "next-auth" {
+//   interface Session {
+//     accessToken?: string;
+//     userId?: string;
+//   }
+// }
 
