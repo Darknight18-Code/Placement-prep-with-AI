@@ -13,7 +13,6 @@ const google = createGoogleGenerativeAI({
 
 /**
  * PHASE 1: Generate Questions
- * Called by the Agent during the "Setup" phase after voice gathering.
  */
 export async function generateInterviewQuestions({ 
   interviewId, 
@@ -69,14 +68,13 @@ export async function generateInterviewQuestions({
 
 /**
  * PHASE 2: Create Feedback
- * Called by the Agent once the Vapi call ends and the transcript is ready.
  */
 export async function createFeedback(params: {
   interviewId: string;
   userId: string;
   transcript: any[];
 }) {
-  const { interviewId, userId, transcript } = params;
+  const { interviewId, transcript } = params;
 
   try {
     // Format the conversation for AI analysis
@@ -86,47 +84,49 @@ export async function createFeedback(params: {
 
     const { object } = await generateObject({
       model: google("gemini-1.5-flash"),
+      // 🚀 FIX 1: Updated the schema to match your Prisma model exactly
       schema: z.object({
         totalScore: z.number().min(0).max(100),
-        finalAssessment: z.string(),
+        feedback: z.string(),
+        communicationScore: z.number().min(0).max(100),
+        technicalScore: z.number().min(0).max(100),
+        problemSolvingScore: z.number().min(0).max(100),
+        fitScore: z.number().min(0).max(100),
+        confidenceScore: z.number().min(0).max(100),
         strengths: z.array(z.string()),
-        areasForImprovement: z.array(z.string()),
-        categoryScores: z.array(z.object({
-          name: z.string(),
-          score: z.number().min(0).max(100),
-          comment: z.string(),
-        })),
+        improvements: z.array(z.string()),
+        nextSteps: z.array(z.string()),
       }),
       prompt: `You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
         Transcript:
         ${formattedTranscript}
 
-        Please score the candidate from 0 to 100 in the following areas. Do not add categories other than the ones provided:
-        - **Communication Skills**: Clarity, articulation, structured responses.
-        - **Technical Knowledge**: Understanding of key concepts for the role.
-        - **Problem-Solving**: Ability to analyze problems and propose solutions.
-        - **Cultural & Role Fit**: Alignment with company values and job role.
-        - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
+        Please score the candidate from 0 to 100 in the requested areas. 
+        Provide overall feedback, a list of strengths, a list of improvements, and 3 actionable next steps.
         `,
       system: "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
     });
 
     // Save analysis to MongoDB
-    const feedback = await db.feedback.create({
+    const feedbackRecord = await db.feedback.create({
+      // 🚀 FIX 2: Mapped the data object to exactly match your Prisma fields
       data: {
         interviewId,
-        // userId,
         totalScore: object.totalScore,
-        finalAssessment: object.finalAssessment,
+        feedback: object.feedback,
+        communicationScore: object.communicationScore,
+        technicalScore: object.technicalScore,
+        problemSolvingScore: object.problemSolvingScore,
+        fitScore: object.fitScore,
+        confidenceScore: object.confidenceScore,
         strengths: object.strengths,
-        areasForImprovement: object.areasForImprovement,
-        categoryScores: object.categoryScores as any,
-        transcript: transcript as any,
+        improvements: object.improvements,
+        nextSteps: object.nextSteps,
       },
     });
 
     revalidatePath(`/interview/${interviewId}/feedback`);
-    return { success: true, feedbackId: feedback.id };
+    return { success: true, feedbackId: feedbackRecord.id };
   } catch (error) {
     console.error("Feedback Generation Error:", error);
     return { success: false };
@@ -147,12 +147,13 @@ export async function getInterviewById(id: string) {
 }
 
 export async function getFeedbackByInterviewId(params: { interviewId: string; userId: string }) {
-  const { interviewId, userId } = params;
+  const { interviewId } = params;
   try {
-    return await db.feedback.findFirst({
+    // 🚀 FIX 3: Removed userId from the where clause since it doesn't exist on Feedback
+    // Changed to findUnique since interviewId is @unique in your schema
+    return await db.feedback.findUnique({
       where: {
         interviewId: interviewId,
-        userId: userId,
       },
     });
   } catch (error) {
