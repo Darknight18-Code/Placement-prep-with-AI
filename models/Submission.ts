@@ -23,8 +23,8 @@ const AIAnalysisSchema = new Schema<AIAnalysis>({
 
 const SubmissionSchema = new Schema<ISubmission>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    problemId: { type: Schema.Types.ObjectId, ref: "Problem", required: true },
+    userId: { type: String, ref: "User", required: true },
+    problemId: { type: String, ref: "Problem", required: true },
     code: { type: String, required: true },
     language: { type: String, default: "javascript" },
     status: {
