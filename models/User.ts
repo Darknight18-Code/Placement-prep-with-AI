@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { User, SkillProfile } from "@/types";
 
-export interface IUser extends Document, Omit<User, "userId"> {
+export interface IUser extends Omit<Document, "_id">, Omit<User, "userId"> {
   _id: string;
   password?: string; // Optional - Clerk handles authentication
 }
