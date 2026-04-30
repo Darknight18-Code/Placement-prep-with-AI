@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     let analysis = await analyzeCode(
       code || "", 
-      problem, 
+      problem as any, 
       hintLevel || 1, 
       language || "javascript"
     );
