@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { Problem } from "@/types";
 
-export interface IProblem extends Document, Omit<Problem, "problemId"> {
+export interface IProblem extends Omit<Document, "_id">, Omit<Problem, "problemId"> {
   _id: string;
 }
 
