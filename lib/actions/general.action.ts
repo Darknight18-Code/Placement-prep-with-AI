@@ -115,7 +115,7 @@ export async function createFeedback(params: {
     const feedback = await db.feedback.create({
       data: {
         interviewId,
-        userId,
+        // userId,
         totalScore: object.totalScore,
         finalAssessment: object.finalAssessment,
         strengths: object.strengths,
