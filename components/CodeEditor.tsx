@@ -278,7 +278,7 @@ export default function CodeEditor({
 
       {/* AI Modal */}
       <AIFeedbackModal
-        analysis={analysis}
+        analysis={analysis || null}
         isOpen={showAIModal}
         onClose={() => setShowAIModal(false)}
       />
