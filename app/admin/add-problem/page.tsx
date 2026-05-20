@@ -38,7 +38,8 @@ export default function AddProblemPage() {
     "vector<string>",
     "vector<vector<int>>",
     "vector<vector<char>>",
-    "TreeNode"
+    "TreeNode",
+    "void"
   ];
 
   // 3. Examples State (Updated with explanation)

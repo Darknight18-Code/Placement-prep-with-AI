@@ -7,7 +7,6 @@ export function generateWrappedCode(userCode: string, language: string, metadata
   const { fnName } = metadata;
 
   // ================= JAVASCRIPT / TYPESCRIPT =================
-  // ================= JAVASCRIPT / TYPESCRIPT =================
   if (language === "javascript" || language === "typescript") {
     return `
 // --- USER CODE START ---

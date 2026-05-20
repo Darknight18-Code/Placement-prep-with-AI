@@ -25,17 +25,27 @@ export async function POST(req: Request) {
       You are an expert enterprise Applicant Tracking System (ATS) and a Senior Technical Recruiter.
       I will provide you with a candidate's Resume Text and a Target Job Description.
       
-      Your task is to analyze the resume against the job description and return a JSON object with the exact structure below. Do not return any markdown formatting like \`\`\`json. Just return the raw JSON object.
+      Your task is to analyze the resume against the job description and return a JSON object. 
+      
+      CRITICAL: Calculate the "score" rigorously using the following weighted algorithm. Do not guess the score. 
+      1. Hard Skills & Keywords (45% weight): Do they have the exact technical skills, languages, and tools required?
+      2. Experience Match (30% weight): Do their years of experience and past responsibilities align with the JD requirements?
+      3. Job Title Alignment (15% weight): Do their current/past job titles show a logical progression to this target role?
+      4. Education & Certifications (10% weight): Do they meet the baseline educational or certification requirements?
+      
+      Sum these calculated weights to output the final integer score.
+
+      Return ONLY a raw JSON object with the exact structure below. Do not include markdown formatting like \`\`\`json, and do not include any explanatory text outside the JSON.
 
       {
-        "score": <number between 0 and 100 representing the ATS match percentage>,
+        "score": <calculated integer between 0 and 100 representing the exact ATS match percentage based on the rubric>,
         "summary": "<A 2-3 sentence professional summary of the candidate's fit for the role>",
-        "missingKeywords": [<Array of up to 7 critical hard skills/keywords from the JD that are missing in the resume>],
+        "missingKeywords": [<Array of up to 7 critical hard skills/keywords from the JD that are missing in the resume. Leave empty if none.>],
         "matchedKeywords": [<Array of up to 7 critical hard skills/keywords that successfully matched>],
         "recommendations": [
-          "<Actionable bullet point 1 on how to improve the resume>",
-          "<Actionable bullet point 2 on how to improve the resume>",
-          "<Actionable bullet point 3 on how to improve the resume>"
+          "<Actionable bullet point 1 on how to improve the resume for this specific role>",
+          "<Actionable bullet point 2 on how to improve the resume for this specific role>",
+          "<Actionable bullet point 3 on how to improve the resume for this specific role>"
         ]
       }
 
@@ -44,7 +54,7 @@ export async function POST(req: Request) {
 
       --- TARGET JOB DESCRIPTION ---
       ${jd}
-    `;
+`;
 
     // 4. Call Gemini
     const result = await model.generateContent(prompt);
