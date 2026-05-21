@@ -7,6 +7,19 @@ datasource db {
   url      = env("MONGODB_URI")
 }
 
+// 🚀 MUST HAVE THIS FOR CLERK AUTH TO WORK!
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  picture   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users") 
+}
+
 model Interview {
   id                String    @id @default(auto()) @map("_id") @db.ObjectId
   userId            String
@@ -17,8 +30,6 @@ model Interview {
   interviewType     String    @default("Mixed")
   questionCount     Int       @default(5)
   questions         String[]
-  
-  // ADD THIS: To track how many minutes the interview took
   duration          Int?      
 
   finalized         Boolean   @default(false)
@@ -37,8 +48,6 @@ model Feedback {
   confidenceScore     Int?
   strengths           String[]
   improvements        String[]
-  
-  // ADD THIS: So the AI can generate 3 specific action items for the user
   nextSteps           String[]  
 
   interviewId         String    @unique @db.ObjectId
@@ -52,10 +61,10 @@ enum Difficulty {
 }
 
 model Problem {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String
-  questionNo  Int          @unique
+  questionNo  Int        @unique
   difficulty  Difficulty
   topic       String
   constraints String
@@ -63,29 +72,30 @@ model Problem {
   hints       String[]
   testCases   TestCase[]
   metadata    Json
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   
-  // Relation to track all attempts/solves for this problem
   submissions Submission[] 
+
+  @@map("problems") // 🚀 FIX: Connects to your existing data!
 }
 
-// --- NEW SUBMISSION MODEL ---
 model Submission {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String   // Clerk User ID
-  code         String
-  language     String
-  status       String   // "correct" (for heatmap), "wrong", or "error"
-  passedCount  Int      // How many test cases passed
-  totalCount   Int      // Total test cases in that run
-  runtime      Int?     // Execution time in ms
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   // Clerk User ID
+  code        String
+  language    String
+  status      String   // "correct" (for heatmap), "wrong", or "error"
+  passedCount Int      // How many test cases passed
+  totalCount  Int      // Total test cases in that run
+  runtime     Int?     // Execution time in ms
   
-  // Relations
-  problem      Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId    String   @db.ObjectId
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId   String   @db.ObjectId
   
-  createdAt    DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@map("submissions") // 🚀 FIX: Connects to your existing data!
 }
 
 type Example {
@@ -102,4 +112,6 @@ model TestCase {
   isHidden       Boolean  @default(false)
   problem        Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId      String   @db.ObjectId
+
+  @@map("testcases") // 🚀 FIX: Connects to your existing data!
 }
