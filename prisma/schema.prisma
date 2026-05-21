@@ -95,7 +95,7 @@ model Submission {
   
   createdAt   DateTime @default(now())
 
-  @@map("submissions") // 🚀 FIX: Connects to your existing data!
+  @@map("Submissions") // 🚀 FIX: Connects to your existing data!
 }
 
 type Example {
